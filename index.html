@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RLK Reader - Professional Admin Panel</title>
+    <title>RLK Reader - Admin Panel</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase SDKs -->
@@ -42,11 +42,14 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            <!-- Section 1: Upload Book Form with Category -->
+            <!-- Section 1: Upload / Edit Book Form -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    ➕ Upload New Book
-                </h2>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="formTitle" class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        ➕ Upload New Book
+                    </h2>
+                    <button id="cancelEditBtn" type="button" onclick="cancelEdit()" class="hidden text-xs text-red-500 font-semibold bg-red-50 px-2.5 py-1 rounded-lg">Cancel Edit</button>
+                </div>
                 <form id="bookForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Book Title</label>
@@ -123,7 +126,7 @@
                             <th class="p-3">Language</th>
                             <th class="p-3">Category</th>
                             <th class="p-3">Format</th>
-                            <th class="p-3 text-center">Action</th>
+                            <th class="p-3 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="booksTableBody" class="text-sm text-gray-700">
@@ -151,15 +154,19 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Handle Book Upload
+        let editingBookId = null; // Track if we are editing a book
+
         const bookForm = document.getElementById('bookForm');
         const uploadStatus = document.getElementById('uploadStatus');
         const submitBtn = document.getElementById('submitBtn');
+        const formTitle = document.getElementById('formTitle');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
 
+        // Handle Book Upload or Update
         bookForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Uploading...';
+            submitBtn.textContent = editingBookId ? 'Updating...' : 'Uploading...';
 
             const title = document.getElementById('title').value.trim();
             const author = document.getElementById('author').value.trim();
@@ -170,28 +177,71 @@
             const pdfUrl = document.getElementById('pdfUrl').value.trim();
 
             try {
-                await db.collection('book').add({
-                    title,
-                    author,
-                    language: language.toLowerCase(),
-                    category,
-                    format: format.toLowerCase(),
-                    coverUrl,
-                    pdfUrl,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                uploadStatus.textContent = 'Book uploaded successfully!';
+                if (editingBookId) {
+                    // Update existing book
+                    await db.collection('book').doc(editingBookId).update({
+                        title,
+                        author,
+                        language: language.toLowerCase(),
+                        category,
+                        format: format.toLowerCase(),
+                        coverUrl,
+                        pdfUrl,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    uploadStatus.textContent = 'Book updated successfully!';
+                    cancelEdit();
+                } else {
+                    // Add new book
+                    await db.collection('book').add({
+                        title,
+                        author,
+                        language: language.toLowerCase(),
+                        category,
+                        format: format.toLowerCase(),
+                        coverUrl,
+                        pdfUrl,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    uploadStatus.textContent = 'Book uploaded successfully!';
+                    bookForm.reset();
+                }
                 uploadStatus.className = 'mt-4 text-center text-sm font-medium text-green-600';
-                bookForm.reset();
             } catch (error) {
                 uploadStatus.textContent = 'Error: ' + error.message;
                 uploadStatus.className = 'mt-4 text-center text-sm font-medium text-red-600';
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Upload Book to Cloud';
+                submitBtn.textContent = editingBookId ? 'Update Book' : 'Upload Book to Cloud';
             }
         });
+
+        // Populate form for editing
+        function editBook(id, title, author, language, category, format, coverUrl, pdfUrl) {
+            editingBookId = id;
+            document.getElementById('title').value = title;
+            document.getElementById('author').value = author;
+            document.getElementById('language').value = language.charAt(0).toUpperCase() + language.slice(1);
+            document.getElementById('category').value = category || 'General';
+            document.getElementById('format').value = format.toLowerCase();
+            document.getElementById('coverUrl').value = coverUrl;
+            document.getElementById('pdfUrl').value = pdfUrl;
+
+            formTitle.textContent = '✏️ Edit Book Details';
+            submitBtn.textContent = 'Update Book';
+            cancelEditBtn.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Cancel editing mode
+        function cancelEdit() {
+            editingBookId = null;
+            bookForm.reset();
+            formTitle.textContent = '➕ Upload New Book';
+            submitBtn.textContent = 'Upload Book to Cloud';
+            cancelEditBtn.classList.add('hidden');
+            uploadStatus.textContent = '';
+        }
 
         // Real-time listener for User Suggestions & Counter
         const suggestionsContainer = document.getElementById('suggestionsContainer');
@@ -241,14 +291,23 @@
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 const docId = doc.id;
+                const title = (data.title || '').replace(/'/g, "\\'");
+                const author = (data.author || '').replace(/'/g, "\\'");
+                const language = data.language || 'english';
+                const category = data.category || 'General';
+                const format = data.format || 'pdf';
+                const coverUrl = data.coverUrl || '';
+                const pdfUrl = data.pdfUrl || '';
+
                 html += `
                     <tr class="border-b hover:bg-gray-50 transition">
                         <td class="p-3 font-semibold text-gray-800">${data.title || 'N/A'}</td>
                         <td class="p-3 text-gray-600">${data.author || 'N/A'}</td>
-                        <td class="p-3 uppercase text-xs font-bold text-purple-700">${data.language || 'N/A'}</td>
-                        <td class="p-3"><span class="bg-gray-100 px-2.5 py-1 rounded-md text-xs font-medium">${data.category || 'General'}</span></td>
-                        <td class="p-3 uppercase text-xs font-bold text-blue-600">${data.format || 'pdf'}</td>
-                        <td class="p-3 text-center">
+                        <td class="p-3 uppercase text-xs font-bold text-purple-700">${language}</td>
+                        <td class="p-3"><span class="bg-gray-100 px-2.5 py-1 rounded-md text-xs font-medium">${category}</span></td>
+                        <td class="p-3 uppercase text-xs font-bold text-blue-600">${format}</td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="editBook('${docId}', '${title}', '${author}', '${language}', '${category}', '${format}', '${coverUrl}', '${pdfUrl}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-lg text-xs font-medium transition">Edit</button>
                             <button onclick="deleteBook('${docId}')" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1 rounded-lg text-xs font-medium transition">Delete</button>
                         </td>
                     </tr>
