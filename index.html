@@ -105,7 +105,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Aapke asal Firebase credentials
         const firebaseConfig = {
             apiKey: "AIzaSyBTexMaw7py4kaDW9cII-v9Ks3cRtZ8pRg",
             authDomain: "rlk-reader.firebaseapp.com",
@@ -138,7 +137,8 @@
             statusMessage.classList.add('hidden');
 
             try {
-                await addDoc(collection(db, "books"), {
+                // Collection name changed to "book" to match your Firebase database
+                await addDoc(collection(db, "book"), {
                     title: title,
                     author: author,
                     language: language,
