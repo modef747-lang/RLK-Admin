@@ -105,7 +105,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ⚠️ ZAROORI: Yahan apne project ki asal Firebase keys dalein taake uploading na ruke!
+        // Apne asal Firebase credentials yahan dalein
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_AUTH_DOMAIN",
@@ -137,7 +137,12 @@
             statusMessage.classList.add('hidden');
 
             try {
-                await addDoc(collection(db, "books"), {
+                // Timeout check taake request hang na ho
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Connection timeout! Check your Firebase config or internet connection.")), 10000)
+                );
+
+                const uploadPromise = addDoc(collection(db, "books"), {
                     title: title,
                     author: author,
                     language: language,
@@ -147,13 +152,17 @@
                     createdAt: serverTimestamp()
                 });
 
+                await Promise.race([uploadPromise, timeoutPromise]);
+
                 statusMessage.textContent = "Book uploaded successfully! Now check your mobile app.";
                 statusMessage.className = "mt-4 text-center text-sm font-medium p-3 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200";
+                statusMessage.classList.remove('hidden');
                 form.reset();
             } catch (error) {
                 console.error("Error adding document: ", error);
                 statusMessage.textContent = "Error: " + error.message;
                 statusMessage.className = "mt-4 text-center text-sm font-medium p-3 rounded-xl bg-red-50 text-red-700 border border-red-200";
+                statusMessage.classList.remove('hidden');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<span>Upload Book to Database</span>';
