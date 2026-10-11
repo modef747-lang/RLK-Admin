@@ -1,44 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>RLK Admin Panel</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
-    .container { max-width: 500px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin: auto; }
-    h2 { text-align: center; color: #333; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input[type="text"] { width: 100%; padding: 8px; box-sizing: border-box; }
-    button { background: #4CAF50; color: white; padding: 10px; border: none; width: 100%; border-radius: 4px; font-size: 16px; cursor: pointer; }
-    button:hover { background: #45a049; }
-    #status { margin-top: 15px; text-align: center; font-weight: bold; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RLK Reader - Admin Upload Panel</title>
+    <!-- Tailwind CSS CDN for Modern Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="container">
-    <h2>RLK Admin - Book Upload</h2>
-    <form id="uploadForm">
-      <div class="form-group">
-        <label>Book Title:</label>
-        <input type="text" id="title" required>
-      </div>
-      <div class="form-group">
-        <label>Author:</label>
-        <input type="text" id="author" required>
-      </div>
-      <div class="form-group">
-        <label>Cover Image URL:</label>
-        <input type="text" id="coverUrlInput" placeholder="Yahan cover image ka link paste karein" required>
-      </div>
-      <div class="form-group">
-        <label>Book File URL (PDF / EPUB):</label>
-        <input type="text" id="bookUrlInput" placeholder="Yahan book file ka link paste karein" required>
-      </div>
-      <button type="submit">Save Book to Database</button>
-    </form>
-    <div id="status"></div>
-  </div>
-  <script type="module" src="/main.js"></script>
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between">
+
+    <!-- Header Section -->
+    <header class="bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                📚 RLK Reader 
+                <span class="text-xs bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-full font-medium">Admin Panel</span>
+            </h1>
+            <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">● Cloud Connected</span>
+        </div>
+    </header>
+
+    <!-- Main Upload Card -->
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-100 p-8 transition-all">
+            
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-900">Upload New Book</h2>
+                <p class="text-sm text-slate-500 mt-1">Add book details to sync instantly with your mobile app.</p>
+            </div>
+
+            <!-- Upload Form -->
+            <form id="uploadForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Book Title / Name</label>
+                    <input type="text" id="bookTitle" required placeholder="e.g. German A1 Vocabulary" 
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">PDF / File URL (`pdfUrl`)</label>
+                    <input type="url" id="pdfUrl" required placeholder="Paste your file link here" 
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
+                </div>
+
+                <button type="submit" id="submitBtn" 
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 flex items-center justify-center gap-2">
+                    <span>Upload to Database</span>
+                </button>
+            </form>
+
+            <!-- Status / Success Message Box -->
+            <div id="statusMessage" class="mt-4 text-center text-sm font-medium hidden p-3 rounded-xl"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center text-xs text-slate-400">
+        RLK Reader Admin &bull; Powered by Firebase & Vercel
+    </footer>
+
+    <!-- Firebase & Custom Logic Script -->
+    <script>
+        // Yahan aap apna Firebase initialization aur form submit wala code lagayenge
+        // jo pehle se aapke admin panel mein kaam kar raha hai.
+    </script>
 </body>
 </html>
