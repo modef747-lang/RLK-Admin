@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RLK Reader - Admin Panel</title>
+    <title>RLK Reader - Professional Admin Panel</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase SDKs -->
@@ -13,75 +13,132 @@
 <body class="bg-gray-100 min-h-screen">
 
     <!-- Navbar -->
-    <nav class="bg-deep-purple-700 bg-purple-900 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-xl font-bold">RLK Reader Admin Panel</h1>
-            <span class="text-sm bg-purple-800 px-3 py-1 rounded-full">Cloud Database Active</span>
+    <nav class="bg-purple-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">⚡ RLK Reader Admin Dashboard</h1>
+            <span class="text-xs bg-purple-800 px-3 py-1.5 rounded-full font-medium">Cloud Database Connected</span>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
         
-        <!-- Section 1: Upload Book Form -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                📚 Upload New Book
-            </h2>
-            <form id="bookForm" class="space-y-4">
+        <!-- Top Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Book Title</label>
-                    <input type="text" id="title" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    <p class="text-sm font-medium text-gray-500">Total Uploaded Books</p>
+                    <h3 id="totalBooksCount" class="text-3xl font-bold text-gray-800 mt-1">0</h3>
                 </div>
+                <div class="p-4 bg-purple-50 text-purple-700 rounded-xl text-2xl">📚</div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Author Name</label>
-                    <input type="text" id="author" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    <p class="text-sm font-medium text-gray-500">User Suggestions & Requests</p>
+                    <h3 id="totalSuggestionsCount" class="text-3xl font-bold text-gray-800 mt-1">0</h3>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Language</label>
-                        <select id="language" class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                            <option value="English">English</option>
-                            <option value="Urdu">Urdu</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Format</label>
-                        <select id="format" class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                            <option value="pdf">PDF</option>
-                            <option value="epub">EPUB</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Cover Image URL</label>
-                    <input type="url" id="coverUrl" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Book File URL (PDF/EPUB)</label>
-                    <input type="url" id="pdfUrl" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                </div>
-                <button type="submit" id="submitBtn" class="w-full bg-purple-700 hover:bg-purple-800 text-white font-semibold py-2.5 rounded-xl transition duration-200">
-                    Upload Book to Cloud
-                </button>
-            </form>
-            <div id="uploadStatus" class="mt-4 text-center text-sm font-medium"></div>
+                <div class="p-4 bg-blue-50 text-blue-700 rounded-xl text-2xl">💬</div>
+            </div>
         </div>
 
-        <!-- Section 2: User Suggestions & Book Requests -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col h-[600px]">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Section 1: Upload Book Form with Category -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    ➕ Upload New Book
+                </h2>
+                <form id="bookForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Book Title</label>
+                        <input type="text" id="title" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Author Name</label>
+                        <input type="text" id="author" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Language</label>
+                            <select id="language" class="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                <option value="English">English</option>
+                                <option value="Urdu">Urdu</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Category</label>
+                            <select id="category" class="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                <option value="General">General</option>
+                                <option value="Islamic">Islamic</option>
+                                <option value="Novels">Novels</option>
+                                <option value="History">History</option>
+                                <option value="Tech">Tech</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Format</label>
+                            <select id="format" class="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                <option value="pdf">PDF</option>
+                                <option value="epub">EPUB</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Cover Image URL</label>
+                        <input type="url" id="coverUrl" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Book File URL (PDF/EPUB)</label>
+                        <input type="url" id="pdfUrl" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    </div>
+                    <button type="submit" id="submitBtn" class="w-full bg-purple-700 hover:bg-purple-800 text-white font-semibold py-2.5 rounded-xl transition duration-200 shadow-md">
+                        Upload Book to Cloud
+                    </button>
+                </form>
+                <div id="uploadStatus" class="mt-4 text-center text-sm font-medium"></div>
+            </div>
+
+            <!-- Section 2: User Suggestions & Requests Feed -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col h-[520px]">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    💬 User Suggestions & Issues
+                </h2>
+                <div class="flex-1 overflow-y-auto space-y-3 pr-2" id="suggestionsContainer">
+                    <p class="text-gray-400 text-center py-10">Loading suggestions...</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Section 3: Uploaded Books Management Table -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
             <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                💬 User Suggestions & Requests
+                📋 Book Management Directory
             </h2>
-            <div class="flex-1 overflow-y-auto space-y-3 pr-2" id="suggestionsContainer">
-                <p class="text-gray-400 text-center py-10">Loading suggestions from users...</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b text-sm text-gray-500 bg-gray-50">
+                            <th class="p-3">Title</th>
+                            <th class="p-3">Author</th>
+                            <th class="p-3">Language</th>
+                            <th class="p-3">Category</th>
+                            <th class="p-3">Format</th>
+                            <th class="p-3 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="booksTableBody" class="text-sm text-gray-700">
+                        <tr>
+                            <td colspan="6" class="p-6 text-center text-gray-400">Loading books list...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
     </div>
 
-    <!-- Firebase Script Configuration -->
+    <!-- Firebase Script Configuration & Logic -->
     <script>
-        // Your Firebase Configuration (Apni existing config yahan lagayein jo pehle se use ho rahi hai)
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_AUTH_DOMAIN",
@@ -107,15 +164,17 @@
             const title = document.getElementById('title').value.trim();
             const author = document.getElementById('author').value.trim();
             const language = document.getElementById('language').value;
+            const category = document.getElementById('category').value;
             const format = document.getElementById('format').value;
             const coverUrl = document.getElementById('coverUrl').value.trim();
-            const pdfUrl = document.getElementById('pdfUrl.value' || 'pdfUrl').value.trim(); // Adjusted safely
+            const pdfUrl = document.getElementById('pdfUrl').value.trim();
 
             try {
                 await db.collection('book').add({
                     title,
                     author,
                     language: language.toLowerCase(),
+                    category,
                     format: format.toLowerCase(),
                     coverUrl,
                     pdfUrl,
@@ -134,10 +193,13 @@
             }
         });
 
-        // Real-time listener for User Suggestions
+        // Real-time listener for User Suggestions & Counter
         const suggestionsContainer = document.getElementById('suggestionsContainer');
+        const totalSuggestionsCount = document.getElementById('totalSuggestionsCount');
 
         db.collection('suggestion').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
+            totalSuggestionsCount.textContent = snapshot.size;
+
             if (snapshot.empty) {
                 suggestionsContainer.innerHTML = '<p class="text-gray-400 text-center py-10">No suggestions or requests yet.</p>';
                 return;
@@ -146,18 +208,74 @@
             let html = '';
             snapshot.forEach((doc) => {
                 const data = doc.data();
+                const docId = doc.id;
                 const message = data.message || 'No message';
                 const time = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'Just now';
 
                 html += `
-                    <div class="p-4 bg-gray-50 border border-gray-100 rounded-xl flex flex-col gap-1">
-                        <p class="text-gray-800 text-sm font-medium">"${message}"</p>
-                        <span class="text-gray-400 text-xs">${time}</span>
+                    <div class="p-4 bg-gray-50 border border-gray-100 rounded-xl flex justify-between items-start gap-4">
+                        <div>
+                            <p class="text-gray-800 text-sm font-medium">"${message}"</p>
+                            <span class="text-gray-400 text-xs mt-1 block">${time}</span>
+                        </div>
+                        <button onclick="deleteSuggestion('${docId}')" class="text-red-500 hover:text-red-700 text-xs font-semibold px-2 py-1 bg-red-50 rounded-lg">Delete</button>
                     </div>
                 `;
             });
             suggestionsContainer.innerHTML = html;
         });
+
+        // Real-time listener for Books Table & Counter
+        const booksTableBody = document.getElementById('booksTableBody');
+        const totalBooksCount = document.getElementById('totalBooksCount');
+
+        db.collection('book').onSnapshot((snapshot) => {
+            totalBooksCount.textContent = snapshot.size;
+
+            if (snapshot.empty) {
+                booksTableBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-400">No books found in database.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const docId = doc.id;
+                html += `
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="p-3 font-semibold text-gray-800">${data.title || 'N/A'}</td>
+                        <td class="p-3 text-gray-600">${data.author || 'N/A'}</td>
+                        <td class="p-3 uppercase text-xs font-bold text-purple-700">${data.language || 'N/A'}</td>
+                        <td class="p-3"><span class="bg-gray-100 px-2.5 py-1 rounded-md text-xs font-medium">${data.category || 'General'}</span></td>
+                        <td class="p-3 uppercase text-xs font-bold text-blue-600">${data.format || 'pdf'}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="deleteBook('${docId}')" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1 rounded-lg text-xs font-medium transition">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            booksTableBody.innerHTML = html;
+        });
+
+        // Delete Book Function
+        async function deleteBook(id) {
+            if (confirm('Are you sure you want to delete this book?')) {
+                try {
+                    await db.collection('book').doc(id).delete();
+                } catch (e) {
+                    alert('Error deleting book: ' + e.message);
+                }
+            }
+        }
+
+        // Delete Suggestion Function
+        async function deleteSuggestion(id) {
+            try {
+                await db.collection('suggestion').doc(id).delete();
+            } catch (e) {
+                alert('Error deleting suggestion: ' + e.message);
+            }
+        }
     </script>
 </body>
 </html>
