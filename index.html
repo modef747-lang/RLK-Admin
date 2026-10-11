@@ -3,164 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RLK Reader - Admin Upload Panel</title>
+    <title>RLK Reader - Admin Panel</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col justify-between">
+<body class="bg-gray-100 min-h-screen">
 
-    <!-- Header Section -->
-    <header class="bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
-        <div class="max-w-2xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                📚 RLK Reader 
-                <span class="text-xs bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-full font-medium">Admin Panel</span>
-            </h1>
-            <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">● Cloud Connected</span>
+    <!-- Navbar -->
+    <nav class="bg-deep-purple-700 bg-purple-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold">RLK Reader Admin Panel</h1>
+            <span class="text-sm bg-purple-800 px-3 py-1 rounded-full">Cloud Database Active</span>
         </div>
-    </header>
+    </nav>
 
-    <!-- Main Upload Card -->
-    <main class="flex-grow flex items-center justify-center p-4 py-8">
-        <div class="bg-white w-full max-w-xl rounded-2xl shadow-xl border border-slate-100 p-8 transition-all">
-            
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold text-slate-900">Upload New Book</h2>
-                <p class="text-sm text-slate-500 mt-1">Add book details to sync instantly with your mobile app.</p>
-            </div>
-
-            <!-- Upload Form -->
-            <form id="uploadForm" class="space-y-4">
-                
-                <!-- Book Title -->
+    <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Section 1: Upload Book Form -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                📚 Upload New Book
+            </h2>
+            <form id="bookForm" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Book Title / Name</label>
-                    <input type="text" id="bookTitle" required placeholder="e.g. Ar-Raheeq Al-Makhtum" 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
+                    <label class="block text-sm font-medium text-gray-700">Book Title</label>
+                    <input type="text" id="title" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
                 </div>
-
-                <!-- Author Name -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Author Name</label>
-                    <input type="text" id="authorName" required placeholder="e.g. Saifur Rahman al-Mubarkpuri" 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
+                    <label class="block text-sm font-medium text-gray-700">Author Name</label>
+                    <input type="text" id="author" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
                 </div>
-
-                <!-- Grid for Language & Format -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Language Selection -->
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">Language</label>
-                        <select id="language" required 
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 bg-white text-sm transition">
+                        <label class="block text-sm font-medium text-gray-700">Language</label>
+                        <select id="language" class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
                             <option value="English">English</option>
-                            <option value="Urdu">Urdu (اردو)</option>
+                            <option value="Urdu">Urdu</option>
                         </select>
                     </div>
-
-                    <!-- Format Selection -->
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">Format</label>
-                        <select id="format" required 
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 bg-white text-sm transition">
-                            <option value="PDF">PDF</option>
-                            <option value="EPUB">EPUB</option>
+                        <label class="block text-sm font-medium text-gray-700">Format</label>
+                        <select id="format" class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            <option value="pdf">PDF</option>
+                            <option value="epub">EPUB</option>
                         </select>
                     </div>
                 </div>
-
-                <!-- Cover Image URL -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Cover Image URL (`coverUrl`)</label>
-                    <input type="url" id="coverUrl" required placeholder="Paste image link here" 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
+                    <label class="block text-sm font-medium text-gray-700">Cover Image URL</label>
+                    <input type="url" id="coverUrl" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
                 </div>
-
-                <!-- PDF / File URL -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">PDF / File URL (`pdfUrl`)</label>
-                    <input type="url" id="pdfUrl" required placeholder="Paste book file link here" 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
+                    <label class="block text-sm font-medium text-gray-700">Book File URL (PDF/EPUB)</label>
+                    <input type="url" id="pdfUrl" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
                 </div>
-
-                <!-- Submit Button -->
-                <button type="submit" id="submitBtn" 
-                    class="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 flex items-center justify-center gap-2">
-                    <span>Upload Book to Database</span>
+                <button type="submit" id="submitBtn" class="w-full bg-purple-700 hover:bg-purple-800 text-white font-semibold py-2.5 rounded-xl transition duration-200">
+                    Upload Book to Cloud
                 </button>
             </form>
-
-            <!-- Status / Success Message Box -->
-            <div id="statusMessage" class="mt-4 text-center text-sm font-medium hidden p-3 rounded-xl"></div>
+            <div id="uploadStatus" class="mt-4 text-center text-sm font-medium"></div>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="py-4 text-center text-xs text-slate-400">
-        RLK Reader Admin &bull; Powered by Firebase & Vercel
-    </footer>
+        <!-- Section 2: User Suggestions & Book Requests -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col h-[600px]">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                💬 User Suggestions & Requests
+            </h2>
+            <div class="flex-1 overflow-y-auto space-y-3 pr-2" id="suggestionsContainer">
+                <p class="text-gray-400 text-center py-10">Loading suggestions from users...</p>
+            </div>
+        </div>
 
-    <!-- Firebase SDK & Upload Logic -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    </div>
 
+    <!-- Firebase Script Configuration -->
+    <script>
+        // Your Firebase Configuration (Apni existing config yahan lagayein jo pehle se use ho rahi hai)
         const firebaseConfig = {
-            apiKey: "AIzaSyBTexMaw7py4kaDW9cII-v9Ks3cRtZ8pRg",
-            authDomain: "rlk-reader.firebaseapp.com",
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
             projectId: "rlk-reader",
-            storageBucket: "rlk-reader.firebasestorage.app",
-            messagingSenderId: "319262863085",
-            appId: "1:319262863085:web:441f3dacafea5e694266e4",
-            measurementId: "G-0ZZC89V99V"
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        const form = document.getElementById('uploadForm');
+        // Handle Book Upload
+        const bookForm = document.getElementById('bookForm');
+        const uploadStatus = document.getElementById('uploadStatus');
         const submitBtn = document.getElementById('submitBtn');
-        const statusMessage = document.getElementById('statusMessage');
 
-        form.addEventListener('submit', async (e) => {
+        bookForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const title = document.getElementById('bookTitle').value;
-            const author = document.getElementById('authorName').value;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Uploading...';
+
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
             const language = document.getElementById('language').value;
             const format = document.getElementById('format').value;
-            const coverUrl = document.getElementById('coverUrl').value;
-            const pdfUrl = document.getElementById('pdfUrl').value;
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span>Uploading to Cloud...</span>';
-            statusMessage.classList.add('hidden');
+            const coverUrl = document.getElementById('coverUrl').value.trim();
+            const pdfUrl = document.getElementById('pdfUrl.value' || 'pdfUrl').value.trim(); // Adjusted safely
 
             try {
-                // Collection name changed to "book" to match your Firebase database
-                await addDoc(collection(db, "book"), {
-                    title: title,
-                    author: author,
-                    language: language,
-                    format: format,
-                    coverUrl: coverUrl,
-                    pdfUrl: pdfUrl,
-                    createdAt: serverTimestamp()
+                await db.collection('book').add({
+                    title,
+                    author,
+                    language: language.toLowerCase(),
+                    format: format.toLowerCase(),
+                    coverUrl,
+                    pdfUrl,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                statusMessage.textContent = "Book uploaded successfully! Now check your mobile app.";
-                statusMessage.className = "mt-4 text-center text-sm font-medium p-3 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200";
-                statusMessage.classList.remove('hidden');
-                form.reset();
+                uploadStatus.textContent = 'Book uploaded successfully!';
+                uploadStatus.className = 'mt-4 text-center text-sm font-medium text-green-600';
+                bookForm.reset();
             } catch (error) {
-                console.error("Error adding document: ", error);
-                statusMessage.textContent = "Error: " + error.message;
-                statusMessage.className = "mt-4 text-center text-sm font-medium p-3 rounded-xl bg-red-50 text-red-700 border border-red-200";
-                statusMessage.classList.remove('hidden');
+                uploadStatus.textContent = 'Error: ' + error.message;
+                uploadStatus.className = 'mt-4 text-center text-sm font-medium text-red-600';
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span>Upload Book to Database</span>';
+                submitBtn.textContent = 'Upload Book to Cloud';
             }
+        });
+
+        // Real-time listener for User Suggestions
+        const suggestionsContainer = document.getElementById('suggestionsContainer');
+
+        db.collection('suggestion').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
+            if (snapshot.empty) {
+                suggestionsContainer.innerHTML = '<p class="text-gray-400 text-center py-10">No suggestions or requests yet.</p>';
+                return;
+            }
+
+            let html = '';
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const message = data.message || 'No message';
+                const time = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'Just now';
+
+                html += `
+                    <div class="p-4 bg-gray-50 border border-gray-100 rounded-xl flex flex-col gap-1">
+                        <p class="text-gray-800 text-sm font-medium">"${message}"</p>
+                        <span class="text-gray-400 text-xs">${time}</span>
+                    </div>
+                `;
+            });
+            suggestionsContainer.innerHTML = html;
         });
     </script>
 </body>
