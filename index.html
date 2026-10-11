@@ -11,7 +11,7 @@
 
     <!-- Header Section -->
     <header class="bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
+        <div class="max-w-2xl mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
                 📚 RLK Reader 
                 <span class="text-xs bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-full font-medium">Admin Panel</span>
@@ -21,8 +21,8 @@
     </header>
 
     <!-- Main Upload Card -->
-    <main class="flex-grow flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-100 p-8 transition-all">
+    <main class="flex-grow flex items-center justify-center p-4 py-8">
+        <div class="bg-white w-full max-w-xl rounded-2xl shadow-xl border border-slate-100 p-8 transition-all">
             
             <div class="text-center mb-6">
                 <h2 class="text-2xl font-bold text-slate-900">Upload New Book</h2>
@@ -30,22 +30,65 @@
             </div>
 
             <!-- Upload Form -->
-            <form id="uploadForm" class="space-y-5">
+            <form id="uploadForm" class="space-y-4">
+                
+                <!-- Book Title -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Book Title / Name</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Book Title / Name</label>
                     <input type="text" id="bookTitle" required placeholder="e.g. German A1 Vocabulary" 
-                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
                 </div>
 
+                <!-- Author Name -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">PDF / File URL (`pdfUrl`)</label>
-                    <input type="url" id="pdfUrl" required placeholder="Paste your file link here" 
-                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Author Name</label>
+                    <input type="text" id="authorName" required placeholder="e.g. John Doe" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
                 </div>
 
+                <!-- Grid for Language & Format -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Language Selection -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Language</label>
+                        <select id="language" required 
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 bg-white text-sm transition">
+                            <option value="English">English</option>
+                            <option value="Urdu">Urdu</option>
+                            <option value="German">German</option>
+                            <option value="Arabic">Arabic</option>
+                        </select>
+                    </div>
+
+                    <!-- Format Selection -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Format</label>
+                        <select id="format" required 
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 bg-white text-sm transition">
+                            <option value="PDF">PDF</option>
+                            <option value="EPUB">EPUB</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Cover Image URL -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Cover Image URL (`coverUrl`)</label>
+                    <input type="url" id="coverUrl" required placeholder="Paste image link here" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
+                </div>
+
+                <!-- PDF / File URL -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">PDF / File URL (`pdfUrl`)</label>
+                    <input type="url" id="pdfUrl" required placeholder="Paste book file link here" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 placeholder-slate-400 text-sm transition">
+                </div>
+
+                <!-- Submit Button -->
                 <button type="submit" id="submitBtn" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 flex items-center justify-center gap-2">
-                    <span>Upload to Database</span>
+                    class="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 flex items-center justify-center gap-2">
+                    <span>Upload Book to Database</span>
                 </button>
             </form>
 
@@ -59,10 +102,10 @@
         RLK Reader Admin &bull; Powered by Firebase & Vercel
     </footer>
 
-    <!-- Firebase & Custom Logic Script -->
+    <!-- Firebase & Custom Script -->
     <script>
         // Yahan aap apna Firebase initialization aur form submit wala code lagayenge
-        // jo pehle se aapke admin panel mein kaam kar raha hai.
+        // jo Firestore database mein in saare fields ko save karega.
     </script>
 </body>
 </html>
