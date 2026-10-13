@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RLK Reader - Admin Panel</title>
+    <title>RLK Reader - Admin Panel (ImageKit)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase SDKs -->
@@ -16,7 +16,7 @@
     <nav class="bg-purple-900 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <h1 class="text-xl font-bold flex items-center gap-2">⚡ RLK Reader Admin Dashboard</h1>
-            <span class="text-xs bg-purple-800 px-3 py-1.5 rounded-full font-medium">Cloud Database Connected</span>
+            <span class="text-xs bg-purple-800 px-3 py-1.5 rounded-full font-medium">ImageKit CDN Connected</span>
         </div>
     </nav>
 
@@ -90,18 +90,19 @@
                         <input type="url" id="coverUrl" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Book File URL (PDF/EPUB)</label>
-                        <input type="url" id="pdfUrl" required class="mt-1 w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                        <label class="block text-sm font-medium text-gray-700">Select Book File (PDF / EPUB)</label>
+                        <input type="file" id="bookFile" accept=".pdf,.epub" class="mt-1 w-full px-3 py-2 border rounded-xl bg-gray-50 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
+                        <p id="fileHelpText" class="text-xs text-gray-400 mt-1">Choose a PDF or EPUB file from your computer.</p>
                     </div>
                     <button type="submit" id="submitBtn" class="w-full bg-purple-700 hover:bg-purple-800 text-white font-semibold py-2.5 rounded-xl transition duration-200 shadow-md">
-                        Upload Book to Cloud
+                        Upload Book to ImageKit
                     </button>
                 </form>
                 <div id="uploadStatus" class="mt-4 text-center text-sm font-medium"></div>
             </div>
 
-            <!-- Section 2: User Suggestions & Requests Feed -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col h-[520px]">
+            <!-- Section 2: User Suggestions Feed -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col h-[560px]">
                 <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                     💬 User Suggestions & Issues
                 </h2>
@@ -112,7 +113,7 @@
 
         </div>
 
-        <!-- Section 3: Uploaded Books Management Table -->
+        <!-- Section 3: Book Management Directory -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
             <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 📋 Book Management Directory
@@ -140,45 +141,108 @@
 
     </div>
 
-    <!-- Firebase Script Configuration & Logic -->
+    <!-- Firebase & ImageKit Logic Script -->
     <script>
+        // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
             projectId: "rlk-reader",
-            storageBucket: "YOUR_STORAGE_BUCKET",
+            storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
             messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            appId: "YOUR_FIREBASE_APP_ID"
         };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let editingBookId = null; // Track if we are editing a book
+        // ImageKit Configuration (Aapki keys set hain)
+        const IMAGEKIT_PUBLIC_KEY = "public_UxzFliMPIdcbpSCKLrhxUt9pt8E=";
+        const IMAGEKIT_PRIVATE_KEY = "private_9sjOfisPwBcukT6avu2w5fzXhuA=";
+        const IMAGEKIT_UPLOAD_ENDPOINT = "https://upload.imagekit.io/api/v1/files/upload";
+
+        let editingBookId = null;
+        let currentExistingPdfUrl = "";
 
         const bookForm = document.getElementById('bookForm');
         const uploadStatus = document.getElementById('uploadStatus');
         const submitBtn = document.getElementById('submitBtn');
         const formTitle = document.getElementById('formTitle');
         const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const fileHelpText = document.getElementById('fileHelpText');
+
+        // Helper function to generate ImageKit signature securely in browser
+        async function generateImageKitSignature(privateKey, token, expire) {
+            const encoder = new TextEncoder();
+            const keyData = encoder.encode(privateKey);
+            const messageData = encoder.encode(token + expire);
+            const cryptoKey = await window.crypto.subtle.importKey(
+                "raw", keyData, { name: "HMAC", hash: "SHA-1" }, false, ["sign"]
+            );
+            const signatureBuffer = await window.crypto.subtle.sign("HMAC", cryptoKey, messageData);
+            const hashArray = Array.from(new Uint8Array(signatureBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
         // Handle Book Upload or Update
         bookForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            submitBtn.disabled = true;
-            submitBtn.textContent = editingBookId ? 'Updating...' : 'Uploading...';
-
+            
             const title = document.getElementById('title').value.trim();
             const author = document.getElementById('author').value.trim();
             const language = document.getElementById('language').value;
             const category = document.getElementById('category').value;
             const format = document.getElementById('format').value;
             const coverUrl = document.getElementById('coverUrl').value.trim();
-            const pdfUrl = document.getElementById('pdfUrl').value.trim();
+            const fileInput = document.getElementById('bookFile');
+
+            submitBtn.disabled = true;
 
             try {
+                let pdfUrl = currentExistingPdfUrl;
+
+                // If a new file is chosen, upload it to ImageKit
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    uploadStatus.textContent = 'Uploading book to ImageKit CDN... Please wait.';
+                    uploadStatus.className = 'mt-4 text-center text-sm font-medium text-purple-600';
+
+                    const token = crypto.randomUUID();
+                    const expire = Math.floor(Date.now() / 1000) + 2400; // 40 minutes expiry
+                    const signature = await generateImageKitSignature(IMAGEKIT_PRIVATE_KEY, token, expire);
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('fileName', file.name);
+                    formData.append('publicKey', IMAGEKIT_PUBLIC_KEY);
+                    formData.append('signature', signature);
+                    formData.append('expire', expire);
+                    formData.append('token', token);
+                    formData.append('folder', '/rlk_books/');
+
+                    const response = await fetch(IMAGEKIT_UPLOAD_ENDPOINT, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (!response.ok) {
+                        throw new Error(result.message || 'ImageKit upload failed');
+                    }
+
+                    pdfUrl = result.url; // Fast ImageKit CDN link
+                }
+
+                if (!pdfUrl) {
+                    alert('Please select a book file to upload.');
+                    submitBtn.disabled = false;
+                    uploadStatus.textContent = '';
+                    return;
+                }
+
+                submitBtn.textContent = editingBookId ? 'Updating...' : 'Saving to Database...';
+
                 if (editingBookId) {
-                    // Update existing book
                     await db.collection('book').doc(editingBookId).update({
                         title,
                         author,
@@ -192,7 +256,6 @@
                     uploadStatus.textContent = 'Book updated successfully!';
                     cancelEdit();
                 } else {
-                    // Add new book
                     await db.collection('book').add({
                         title,
                         author,
@@ -203,8 +266,9 @@
                         pdfUrl,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    uploadStatus.textContent = 'Book uploaded successfully!';
+                    uploadStatus.textContent = 'Book uploaded successfully to ImageKit CDN!';
                     bookForm.reset();
+                    fileHelpText.textContent = 'Choose a PDF or EPUB file from your computer.';
                 }
                 uploadStatus.className = 'mt-4 text-center text-sm font-medium text-green-600';
             } catch (error) {
@@ -212,20 +276,24 @@
                 uploadStatus.className = 'mt-4 text-center text-sm font-medium text-red-600';
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = editingBookId ? 'Update Book' : 'Upload Book to Cloud';
+                submitBtn.textContent = editingBookId ? 'Update Book' : 'Upload Book to ImageKit';
             }
         });
 
         // Populate form for editing
         function editBook(id, title, author, language, category, format, coverUrl, pdfUrl) {
             editingBookId = id;
+            currentExistingPdfUrl = pdfUrl;
+
             document.getElementById('title').value = title;
             document.getElementById('author').value = author;
             document.getElementById('language').value = language.charAt(0).toUpperCase() + language.slice(1);
             document.getElementById('category').value = category || 'General';
             document.getElementById('format').value = format.toLowerCase();
             document.getElementById('coverUrl').value = coverUrl;
-            document.getElementById('pdfUrl').value = pdfUrl;
+            
+            document.getElementById('bookFile').value = "";
+            fileHelpText.textContent = 'File already attached. Choose a new file only if you want to replace it.';
 
             formTitle.textContent = '✏️ Edit Book Details';
             submitBtn.textContent = 'Update Book';
@@ -233,35 +301,33 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Cancel editing mode
         function cancelEdit() {
             editingBookId = null;
+            currentExistingPdfUrl = "";
             bookForm.reset();
             formTitle.textContent = '➕ Upload New Book';
-            submitBtn.textContent = 'Upload Book to Cloud';
+            submitBtn.textContent = 'Upload Book to ImageKit';
             cancelEditBtn.classList.add('hidden');
+            fileHelpText.textContent = 'Choose a PDF or EPUB file from your computer.';
             uploadStatus.textContent = '';
         }
 
-        // Real-time listener for User Suggestions & Counter
+        // Real-time listener for Suggestions
         const suggestionsContainer = document.getElementById('suggestionsContainer');
         const totalSuggestionsCount = document.getElementById('totalSuggestionsCount');
 
         db.collection('suggestion').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
             totalSuggestionsCount.textContent = snapshot.size;
-
             if (snapshot.empty) {
                 suggestionsContainer.innerHTML = '<p class="text-gray-400 text-center py-10">No suggestions or requests yet.</p>';
                 return;
             }
-
             let html = '';
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 const docId = doc.id;
                 const message = data.message || 'No message';
                 const time = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'Just now';
-
                 html += `
                     <div class="p-4 bg-gray-50 border border-gray-100 rounded-xl flex justify-between items-start gap-4">
                         <div>
@@ -275,18 +341,16 @@
             suggestionsContainer.innerHTML = html;
         });
 
-        // Real-time listener for Books Table & Counter
+        // Real-time listener for Books Table
         const booksTableBody = document.getElementById('booksTableBody');
         const totalBooksCount = document.getElementById('totalBooksCount');
 
         db.collection('book').onSnapshot((snapshot) => {
             totalBooksCount.textContent = snapshot.size;
-
             if (snapshot.empty) {
                 booksTableBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-400">No books found in database.</td></tr>';
                 return;
             }
-
             let html = '';
             snapshot.forEach((doc) => {
                 const data = doc.data();
@@ -316,7 +380,6 @@
             booksTableBody.innerHTML = html;
         });
 
-        // Delete Book Function
         async function deleteBook(id) {
             if (confirm('Are you sure you want to delete this book?')) {
                 try {
@@ -327,7 +390,6 @@
             }
         }
 
-        // Delete Suggestion Function
         async function deleteSuggestion(id) {
             try {
                 await db.collection('suggestion').doc(id).delete();
