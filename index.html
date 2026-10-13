@@ -113,8 +113,8 @@
 
         </div>
 
-        <!-- Section 3: Separate Tables for English & Urdu Books -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Section 3: Side-by-Side Tables for English & Urdu Books (md:grid-cols-2) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             
             <!-- English Books Table -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
@@ -364,7 +364,7 @@
             suggestionsContainer.innerHTML = html;
         });
 
-        // Separate English and Urdu Books Listener
+        // Separate English and Urdu Books Listener (Side by Side)
         const englishBooksTableBody = document.getElementById('englishBooksTableBody');
         const urduBooksTableBody = document.getElementById('urduBooksTableBody');
         const totalBooksCount = document.getElementById('totalBooksCount');
