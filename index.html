@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RLK Reader - Admin Panel (ImageKit)</title>
+    <title>RLK Reader - Admin Panel</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase SDKs -->
@@ -113,37 +113,65 @@
 
         </div>
 
-        <!-- Section 3: Book Management Directory -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                📋 Book Management Directory
-            </h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b text-sm text-gray-500 bg-gray-50">
-                            <th class="p-3">Title</th>
-                            <th class="p-3">Author</th>
-                            <th class="p-3">Language</th>
-                            <th class="p-3">Category</th>
-                            <th class="p-3">Format</th>
-                            <th class="p-3 text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="booksTableBody" class="text-sm text-gray-700">
-                        <tr>
-                            <td colspan="6" class="p-6 text-center text-gray-400">Loading books list...</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- Section 3: Separate Tables for English & Urdu Books -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- English Books Table -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2 text-blue-700">
+                    🇬🇧 English Books Directory
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b text-sm text-gray-500 bg-gray-50">
+                                <th class="p-3">Title</th>
+                                <th class="p-3">Author</th>
+                                <th class="p-3">Category</th>
+                                <th class="p-3">Format</th>
+                                <th class="p-3 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="englishBooksTableBody" class="text-sm text-gray-700">
+                            <tr>
+                                <td colspan="5" class="p-6 text-center text-gray-400">Loading English books...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            <!-- Urdu Books Table -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2 text-emerald-700">
+                    🇵🇰 Urdu Books Directory
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b text-sm text-gray-500 bg-gray-50">
+                                <th class="p-3">Title</th>
+                                <th class="p-3">Author</th>
+                                <th class="p-3">Category</th>
+                                <th class="p-3">Format</th>
+                                <th class="p-3 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="urduBooksTableBody" class="text-sm text-gray-700">
+                            <tr>
+                                <td colspan="5" class="p-6 text-center text-gray-400">Loading Urdu books...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
     </div>
 
     <!-- Firebase & ImageKit Logic Script -->
     <script>
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "YOUR_FIREBASE_API_KEY",
             authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
@@ -156,7 +184,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // ImageKit Configuration (Aapki keys set hain)
         const IMAGEKIT_PUBLIC_KEY = "public_UxzFliMPIdcbpSCKLrhxUt9pt8E=";
         const IMAGEKIT_PRIVATE_KEY = "private_9sjOfisPwBcukT6avu2w5fzXhuA=";
         const IMAGEKIT_UPLOAD_ENDPOINT = "https://upload.imagekit.io/api/v1/files/upload";
@@ -171,7 +198,6 @@
         const cancelEditBtn = document.getElementById('cancelEditBtn');
         const fileHelpText = document.getElementById('fileHelpText');
 
-        // Helper function to generate ImageKit signature securely in browser
         async function generateImageKitSignature(privateKey, token, expire) {
             const encoder = new TextEncoder();
             const keyData = encoder.encode(privateKey);
@@ -184,7 +210,6 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Handle Book Upload or Update
         bookForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -201,14 +226,13 @@
             try {
                 let pdfUrl = currentExistingPdfUrl;
 
-                // If a new file is chosen, upload it to ImageKit
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
                     uploadStatus.textContent = 'Uploading book to ImageKit CDN... Please wait.';
                     uploadStatus.className = 'mt-4 text-center text-sm font-medium text-purple-600';
 
                     const token = crypto.randomUUID();
-                    const expire = Math.floor(Date.now() / 1000) + 2400; // 40 minutes expiry
+                    const expire = Math.floor(Date.now() / 1000) + 2400;
                     const signature = await generateImageKitSignature(IMAGEKIT_PRIVATE_KEY, token, expire);
 
                     const formData = new FormData();
@@ -230,7 +254,7 @@
                         throw new Error(result.message || 'ImageKit upload failed');
                     }
 
-                    pdfUrl = result.url; // Fast ImageKit CDN link
+                    pdfUrl = result.url;
                 }
 
                 if (!pdfUrl) {
@@ -280,7 +304,6 @@
             }
         });
 
-        // Populate form for editing
         function editBook(id, title, author, language, category, format, coverUrl, pdfUrl) {
             editingBookId = id;
             currentExistingPdfUrl = pdfUrl;
@@ -312,7 +335,7 @@
             uploadStatus.textContent = '';
         }
 
-        // Real-time listener for Suggestions
+        // Suggestions Listener
         const suggestionsContainer = document.getElementById('suggestionsContainer');
         const totalSuggestionsCount = document.getElementById('totalSuggestionsCount');
 
@@ -341,43 +364,57 @@
             suggestionsContainer.innerHTML = html;
         });
 
-        // Real-time listener for Books Table
-        const booksTableBody = document.getElementById('booksTableBody');
+        // Separate English and Urdu Books Listener
+        const englishBooksTableBody = document.getElementById('englishBooksTableBody');
+        const urduBooksTableBody = document.getElementById('urduBooksTableBody');
         const totalBooksCount = document.getElementById('totalBooksCount');
 
         db.collection('book').onSnapshot((snapshot) => {
             totalBooksCount.textContent = snapshot.size;
+
+            let englishHtml = '';
+            let urduHtml = '';
+
             if (snapshot.empty) {
-                booksTableBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-400">No books found in database.</td></tr>';
+                const emptyMsg = '<tr><td colspan="5" class="p-6 text-center text-gray-400">No books found.</td></tr>';
+                englishBooksTableBody.innerHTML = emptyMsg;
+                urduBooksTableBody.innerHTML = emptyMsg;
                 return;
             }
-            let html = '';
+
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 const docId = doc.id;
                 const title = (data.title || '').replace(/'/g, "\\'");
                 const author = (data.author || '').replace(/'/g, "\\'");
-                const language = data.language || 'english';
+                const language = (data.language || 'english').toLowerCase();
                 const category = data.category || 'General';
-                const format = data.format || 'pdf';
+                const format = (data.format || 'pdf').toUpperCase();
                 const coverUrl = data.coverUrl || '';
                 const pdfUrl = data.pdfUrl || '';
 
-                html += `
+                const row = `
                     <tr class="border-b hover:bg-gray-50 transition">
                         <td class="p-3 font-semibold text-gray-800">${data.title || 'N/A'}</td>
                         <td class="p-3 text-gray-600">${data.author || 'N/A'}</td>
-                        <td class="p-3 uppercase text-xs font-bold text-purple-700">${language}</td>
                         <td class="p-3"><span class="bg-gray-100 px-2.5 py-1 rounded-md text-xs font-medium">${category}</span></td>
-                        <td class="p-3 uppercase text-xs font-bold text-blue-600">${format}</td>
+                        <td class="p-3 text-xs font-bold text-blue-600">${format}</td>
                         <td class="p-3 text-center space-x-2">
-                            <button onclick="editBook('${docId}', '${title}', '${author}', '${language}', '${category}', '${format}', '${coverUrl}', '${pdfUrl}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-lg text-xs font-medium transition">Edit</button>
+                            <button onclick="editBook('${docId}', '${title}', '${author}', '${language}', '${category}', '${format.toLowerCase()}', '${coverUrl}', '${pdfUrl}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-lg text-xs font-medium transition">Edit</button>
                             <button onclick="deleteBook('${docId}')" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1 rounded-lg text-xs font-medium transition">Delete</button>
                         </td>
                     </tr>
                 `;
+
+                if (language === 'urdu') {
+                    urduHtml += row;
+                } else {
+                    englishHtml += row;
+                }
             });
-            booksTableBody.innerHTML = html;
+
+            englishBooksTableBody.innerHTML = englishHtml || '<tr><td colspan="5" class="p-6 text-center text-gray-400">No English books found.</td></tr>';
+            urduBooksTableBody.innerHTML = urduHtml || '<tr><td colspan="5" class="p-6 text-center text-gray-400">No Urdu books found.</td></tr>';
         });
 
         async function deleteBook(id) {
